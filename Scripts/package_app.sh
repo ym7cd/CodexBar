@@ -195,6 +195,20 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>SUFeedURL</key><string>${FEED_URL}</string>
     <key>SUPublicEDKey</key><string>AGCY8w5vHirVfGGDGc8Szc5iuOqupZSh9pMj/Qs67XI=</string>
     <key>SUEnableAutomaticChecks</key><${AUTO_CHECKS}/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key><false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>api.poe.com</key>
+            <dict>
+                <key>NSIncludesSubdomains</key><true/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key><false/>
+                <key>NSTemporaryExceptionRequiresForwardSecrecy</key><true/>
+                <key>NSTemporaryExceptionMinimumTLSVersion</key><string>TLSv1.2</string>
+            </dict>
+        </dict>
+    </dict>
     <key>CodexBuildTimestamp</key><string>${BUILD_TIMESTAMP}</string>
     <key>CodexGitCommit</key><string>${GIT_COMMIT}</string>
 </dict>

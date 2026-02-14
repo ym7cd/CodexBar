@@ -15,6 +15,17 @@ struct ProviderConfigEnvironmentTests {
     }
 
     @Test
+    func appliesAPIKeyOverrideForPoe() {
+        let config = ProviderConfig(id: .poe, apiKey: "poe-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .poe,
+            config: config)
+
+        #expect(env[PoeSettingsReader.apiKeyKey] == "poe-token")
+    }
+
+    @Test
     func appliesAPIKeyOverrideForWarp() {
         let config = ProviderConfig(id: .warp, apiKey: "w-token")
         let env = ProviderConfigEnvironment.applyAPIKeyOverride(

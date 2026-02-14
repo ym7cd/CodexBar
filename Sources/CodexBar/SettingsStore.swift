@@ -85,6 +85,7 @@ final class SettingsStore {
         userDefaults: UserDefaults = .standard,
         configStore: CodexBarConfigStore = CodexBarConfigStore(),
         zaiTokenStore: any ZaiTokenStoring = KeychainZaiTokenStore(),
+        poeTokenStore: any PoeTokenStoring = KeychainPoeTokenStore(),
         syntheticTokenStore: any SyntheticTokenStoring = KeychainSyntheticTokenStore(),
         codexCookieStore: any CookieHeaderStoring = KeychainCookieHeaderStore(
             account: "codex-cookie",
@@ -116,6 +117,7 @@ final class SettingsStore {
     {
         let legacyStores = CodexBarConfigMigrator.LegacyStores(
             zaiTokenStore: zaiTokenStore,
+            poeTokenStore: poeTokenStore,
             syntheticTokenStore: syntheticTokenStore,
             codexCookieStore: codexCookieStore,
             claudeCookieStore: claudeCookieStore,

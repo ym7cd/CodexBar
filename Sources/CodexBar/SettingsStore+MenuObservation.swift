@@ -39,6 +39,7 @@ extension SettingsStore {
         _ = self.mergeIcons
         _ = self.switcherShowsIcons
         _ = self.zaiAPIToken
+        _ = self.poeAPIToken
         _ = self.syntheticAPIToken
         _ = self.codexCookieHeader
         _ = self.claudeCookieHeader

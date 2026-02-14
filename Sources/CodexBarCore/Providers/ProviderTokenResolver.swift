@@ -49,6 +49,10 @@ public enum ProviderTokenResolver {
         self.warpResolution(environment: environment)?.token
     }
 
+    public static func poeToken(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        self.poeResolution(environment: environment)?.token
+    }
+
     public static func zaiResolution(
         environment: [String: String] = ProcessInfo.processInfo.environment) -> ProviderTokenResolution?
     {
@@ -108,6 +112,12 @@ public enum ProviderTokenResolver {
         environment: [String: String] = ProcessInfo.processInfo.environment) -> ProviderTokenResolution?
     {
         self.resolveEnv(WarpSettingsReader.apiKey(environment: environment))
+    }
+
+    public static func poeResolution(
+        environment: [String: String] = ProcessInfo.processInfo.environment) -> ProviderTokenResolution?
+    {
+        self.resolveEnv(PoeSettingsReader.apiKey(environment: environment))
     }
 
     private static func cleaned(_ raw: String?) -> String? {

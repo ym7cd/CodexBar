@@ -4,6 +4,7 @@ import Foundation
 struct CodexBarConfigMigrator {
     struct LegacyStores {
         let zaiTokenStore: any ZaiTokenStoring
+        let poeTokenStore: any PoeTokenStoring
         let syntheticTokenStore: any SyntheticTokenStoring
         let codexCookieStore: any CookieHeaderStoring
         let claudeCookieStore: any CookieHeaderStoring

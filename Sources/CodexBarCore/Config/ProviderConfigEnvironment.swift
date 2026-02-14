@@ -11,6 +11,8 @@ public enum ProviderConfigEnvironment {
         switch provider {
         case .zai:
             env[ZaiSettingsReader.apiTokenKey] = apiKey
+        case .poe:
+            env[PoeSettingsReader.apiKeyKey] = apiKey
         case .copilot:
             env["COPILOT_API_TOKEN"] = apiKey
         case .minimax:

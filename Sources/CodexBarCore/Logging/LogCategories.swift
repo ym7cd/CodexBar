@@ -39,6 +39,8 @@ public enum LogCategories {
     public static let minimaxWeb = "minimax-web"
     public static let notifications = "notifications"
     public static let openAIWeb = "openai-web"
+    public static let poe = "poe"
+    public static let poeTokenStore = "poe-token-store"
     public static let openAIWebview = "openai-webview"
     public static let opencodeUsage = "opencode-usage"
     public static let providerDetection = "provider-detection"

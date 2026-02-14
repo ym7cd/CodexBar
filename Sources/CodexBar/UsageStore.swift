@@ -1241,6 +1241,10 @@ extension UsageStore {
                     ampCookieHeader: self.settings.ampCookieHeader)
                 await MainActor.run { self.probeLogs[.amp] = text }
                 return text
+            case .poe:
+                let text = "Poe debug log not yet implemented"
+                await MainActor.run { self.probeLogs[.poe] = text }
+                return text
             case .jetbrains:
                 let text = "JetBrains AI debug log not yet implemented"
                 await MainActor.run { self.probeLogs[.jetbrains] = text }
