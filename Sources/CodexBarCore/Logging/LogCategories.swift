@@ -42,6 +42,7 @@ public enum LogCategories {
     public static let poe = "poe"
     public static let poeTokenStore = "poe-token-store"
     public static let openAIWebview = "openai-webview"
+    public static let ollama = "ollama"
     public static let opencodeUsage = "opencode-usage"
     public static let providerDetection = "provider-detection"
     public static let providers = "providers"
