@@ -245,6 +245,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         self.jetbrains = jetbrains
         self.poe = poe
     }
+}
 
 public enum ProviderSettingsSnapshotContribution: Sendable {
     case codex(ProviderSettingsSnapshot.CodexProviderSettings)
