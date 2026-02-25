@@ -314,8 +314,8 @@ final class UsageStore {
         for provider in self.enabledProviders() {
             guard let snapshot = self.snapshots[provider] else { continue }
             // Use the same window selection logic as menuBarPercentWindow:
-            // Factory uses secondary (premium) first, others use primary (session) first.
-            let window: RateWindow? = if provider == .factory {
+            // Factory and Kimi use secondary first, others use primary first.
+            let window: RateWindow? = if provider == .factory || provider == .kimi {
                 snapshot.secondary ?? snapshot.primary
             } else {
                 snapshot.primary ?? snapshot.secondary
@@ -665,6 +665,8 @@ final class UsageStore {
 
 extension UsageStore {
     private static let openAIWebRefreshMultiplier: TimeInterval = 5
+    private static let openAIWebPrimaryFetchTimeout: TimeInterval = 15
+    private static let openAIWebRetryFetchTimeout: TimeInterval = 8
 
     private func openAIWebRefreshIntervalSeconds() -> TimeInterval {
         let base = max(self.settings.refreshFrequency.seconds ?? 0, 120)
@@ -780,7 +782,8 @@ extension UsageStore {
             var dash = try await OpenAIDashboardFetcher().loadLatestDashboard(
                 accountEmail: effectiveEmail,
                 logger: log,
-                debugDumpHTML: false)
+                debugDumpHTML: false,
+                timeout: Self.openAIWebPrimaryFetchTimeout)
 
             if self.dashboardEmailMismatch(expected: normalized, actual: dash.signedInEmail) {
                 if let imported = await self.importOpenAIDashboardCookiesIfNeeded(
@@ -792,7 +795,8 @@ extension UsageStore {
                 dash = try await OpenAIDashboardFetcher().loadLatestDashboard(
                     accountEmail: effectiveEmail,
                     logger: log,
-                    debugDumpHTML: false)
+                    debugDumpHTML: false,
+                    timeout: Self.openAIWebRetryFetchTimeout)
             }
 
             if self.dashboardEmailMismatch(expected: normalized, actual: dash.signedInEmail) {
@@ -821,7 +825,8 @@ extension UsageStore {
                 let dash = try await OpenAIDashboardFetcher().loadLatestDashboard(
                     accountEmail: effectiveEmail,
                     logger: log,
-                    debugDumpHTML: true)
+                    debugDumpHTML: true,
+                    timeout: Self.openAIWebRetryFetchTimeout)
                 await self.applyOpenAIDashboard(dash, targetEmail: effectiveEmail)
             } catch let OpenAIDashboardFetcher.FetchError.noDashboardData(retryBody) {
                 let finalBody = retryBody.isEmpty ? body : retryBody
@@ -844,7 +849,8 @@ extension UsageStore {
                 let dash = try await OpenAIDashboardFetcher().loadLatestDashboard(
                     accountEmail: effectiveEmail,
                     logger: log,
-                    debugDumpHTML: true)
+                    debugDumpHTML: true,
+                    timeout: Self.openAIWebRetryFetchTimeout)
                 await self.applyOpenAIDashboard(dash, targetEmail: effectiveEmail)
             } catch OpenAIDashboardFetcher.FetchError.loginRequired {
                 await MainActor.run {
@@ -1154,6 +1160,15 @@ extension UsageStore {
         let ampCookieHeader = self.settings.ampCookieHeader
         let ollamaCookieSource = self.settings.ollamaCookieSource
         let ollamaCookieHeader = self.settings.ollamaCookieHeader
+        let processEnvironment = ProcessInfo.processInfo.environment
+        let openRouterConfigToken = self.settings.providerConfig(for: .openrouter)?.sanitizedAPIKey
+        let openRouterHasConfigToken = !(openRouterConfigToken?.trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty ?? true)
+        let openRouterHasEnvToken = OpenRouterSettingsReader.apiToken(environment: processEnvironment) != nil
+        let openRouterEnvironment = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: processEnvironment,
+            provider: .openrouter,
+            config: self.settings.providerConfig(for: .openrouter))
         return await Task.detached(priority: .utility) { () -> String in
             let unimplementedDebugLogMessages: [UsageProvider: String] = [
                 .gemini: "Gemini debug log not yet implemented",
@@ -1213,6 +1228,19 @@ extension UsageStore {
                 text = "Poe debug log not yet implemented"
             case .jetbrains:
                 text = "JetBrains AI debug log not yet implemented"
+            case .openrouter:
+                let resolution = ProviderTokenResolver.openRouterResolution(environment: openRouterEnvironment)
+                let hasAny = resolution != nil
+                let source: String = if resolution == nil {
+                    "none"
+                } else if openRouterHasConfigToken, openRouterHasEnvToken {
+                    "settings-config (overrides env)"
+                } else if openRouterHasConfigToken {
+                    "settings-config"
+                } else {
+                    resolution?.source.rawValue ?? "environment"
+                }
+                text = "OPENROUTER_API_KEY=\(hasAny ? "present" : "missing") source=\(source)"
             case .warp:
                 let resolution = ProviderTokenResolver.warpResolution()
                 let hasAny = resolution != nil
